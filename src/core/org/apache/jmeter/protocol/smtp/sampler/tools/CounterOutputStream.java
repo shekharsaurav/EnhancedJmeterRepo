@@ -16,41 +16,49 @@
  *
  */
 
-package org.apache.jmeter.util;
+package org.apache.jmeter.protocol.smtp.sampler.tools;
 
-import java.io.FilterInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.OutputStream;
 
 /**
- * InputStream wrapper to emulate a slow device, e.g. modem
- *
+ * Utility-class to calculate message size.
  */
-public class SlowInputStream extends FilterInputStream {
-
-    private final CPSPauser pauser;
+public class CounterOutputStream extends OutputStream {
+    int count = 0;
 
     /**
-     * Wraps the input stream to emulate a slow device
-     * @param in input stream
-     * @param cps characters per second to emulate
+     * {@inheritDoc}
      */
-    public SlowInputStream(InputStream in, int cps) {
-        super(in);
-        pauser = new CPSPauser(cps);
-    }
-
     @Override
-    public int read() throws IOException {
-        pauser.pause(1,3);
-        return in.read();
-    }
 
-    // Also handles read(byte[])
+    public void close() {}
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public int read(byte[] b, int off, int len) throws IOException {
-        pauser.pause(len,4);
-        return in.read(b, off, len);
+    public void flush() {}
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void write(byte[] b, int off, int len) {
+        count += len;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void write(int b) {
+        count++;
+    }
+
+    /**
+     * Returns message size
+     * @return Message size
+     */
+    public int getCount() {
+        return count;
+    }
 }

@@ -43,13 +43,13 @@ public class SlowOutputStream extends FilterOutputStream {
     // Also handles write(byte[])
     @Override
     public void write(byte[] b, int off, int len) throws IOException {
-        pauser.pause(len);
+        pauser.pause(len, 1);
         out.write(b, off, len);
     }
 
     @Override
     public void write(int b) throws IOException {
-        pauser.pause(1);
+        pauser.pause(1, 2);
         out.write(b);
     }
 }

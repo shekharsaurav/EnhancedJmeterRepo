@@ -18,6 +18,9 @@
 
 package org.apache.jmeter.util;
 
+import org.apache.jorphan.logging.LoggingManager;
+import org.apache.log.Logger;
+
 /**
  *
  * Generate appropriate pauses for a given CPS (characters per second)
@@ -29,6 +32,7 @@ public class CPSPauser{
     private static final int MS_PER_SEC = 1000;
     private static final int NS_PER_SEC = 1000000000;
     private static final int NS_PER_MS  = NS_PER_SEC/MS_PER_SEC;
+    private static final Logger log = LoggingManager.getLoggerForClass();
 
     /**
      * Create a pauser with the appropriate speed settings.
@@ -47,11 +51,12 @@ public class CPSPauser{
      *
      * @param bytes number of bytes being transferred
      */
-    public void pause(int bytes){
+    public void pause(int bytes, int key){
         long sleepMS = (bytes*MS_PER_SEC)/CPS;
         int  sleepNS = ((bytes*MS_PER_SEC)/CPS) % NS_PER_MS;
         try {
             Thread.sleep(sleepMS,sleepNS);
+            log.info("Thread Delay in CPS PAUSER!!!!!!!!!! " + key);
         } catch (InterruptedException ignored) {
         }
     }

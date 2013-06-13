@@ -108,6 +108,7 @@ import org.apache.jmeter.protocol.http.util.SlowHC4SocketFactory;
 import org.apache.jmeter.samplers.SampleResult;
 import org.apache.jmeter.testelement.property.CollectionProperty;
 import org.apache.jmeter.testelement.property.PropertyIterator;
+import org.apache.jmeter.util.Calculator;
 import org.apache.jmeter.util.JMeterUtils;
 import org.apache.jorphan.logging.LoggingManager;
 import org.apache.log.Logger;
@@ -154,7 +155,13 @@ public class HTTPHC4Impl extends HTTPHCAbstractImpl {
 
     // Scheme used for slow HTTP sockets. Cannot be set as a default, because must be set on an HttpClient instance.
     private Scheme SLOW_HTTP;
-    public int bandwidthCPS = getBandwidth();
+    private int bandwidthCPS = getBandwidth();
+    private double maxError = 1;
+    private double curError = 0;
+    private double prevError = 0;
+    private int minBandwidth = 1024;
+    Calculator calc;
+    
     
     // We always want to override the HTTPS scheme, because we want to trust all certificates and hosts
     private static final Scheme HTTPS_SCHEME;
@@ -218,6 +225,20 @@ public class HTTPHC4Impl extends HTTPHCAbstractImpl {
         super(testElement);
         // code transferred from static block in this class to class constructor to implement bandwidth throttling
         if (bandwidthCPS > 0) {
+        	prevError = curError;
+        	//if (calc.getErrorPercentage() != 0.0)
+        	//	curError = calc.getErrorPercentage();
+        	curError = 1.5;
+        	if (curError > maxError && bandwidthCPS > minBandwidth) {
+        		log.warn("current Error rate : " + curError);
+        		bandwidthCPS = bandwidthCPS/10;
+        		log.info("Bandwidth decreased to : bandwidthCPS " + bandwidthCPS);
+        	}
+        	else if (curError < maxError && prevError > maxError) {
+        		log.info("Error rate under control : " + curError);
+        		bandwidthCPS = 10*bandwidthCPS;
+        		log.info("Upgrading bandwidth : bandwidthCPS : " + bandwidthCPS);
+        	}
         	log.info("Setting up HTTP SlowProtocol, bandwidthCPS = "+bandwidthCPS);
             SLOW_HTTP = new Scheme(HTTPConstants.PROTOCOL_HTTP, HTTPConstants.DEFAULT_HTTP_PORT, new SlowHC4SocketFactory(bandwidthCPS));
         } else {

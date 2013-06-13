@@ -32,7 +32,7 @@ import org.apache.jmeter.gui.util.VerticalPanel;
 import org.apache.jmeter.testelement.TestElement;
 import org.apache.jmeter.util.JMeterUtils;
 import org.apache.jmeter.protocol.smtp.sampler.SmtpSampler;
-//import org.apache.jmeter.protocol.smtp.sampler.SmtpSampler;
+
 
 public class SmtpConfigGui extends AbstractConfigGui{
 
